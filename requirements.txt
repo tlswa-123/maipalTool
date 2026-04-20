@@ -1,0 +1,19 @@
+# AI 语音助手核心依赖
+# 必需的依赖包
+
+# 语音识别
+SpeechRecognition>=3.10.0
+pyaudio>=0.2.13
+
+# AI 对话
+requests>=2.31.0
+
+# 语音合成
+edge-tts>=6.1.9
+pyttsx3>=2.90
+
+# 辅助库
+numpy>=1.24.0
+
+# 可选依赖（更好的识别）
+# openai-whisper  # 需要单独安装: pip install openai-whisper

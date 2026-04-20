@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 语音助手 - 在线测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+                'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .panel-header h2 {
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        .panel-header .icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        .status-idle {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-active {
+            background: #28a745;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1em;
+            resize: vertical;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea:disabled {
+            background: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
+
+        .btn-info:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+        }
+
+        .output-box {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 100px;
+            margin-top: 15px;
+            font-size: 1em;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .output-box.empty {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .log-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .log-entry.info {
+            border-left: 3px solid #17a2b8;
+        }
+
+        .log-entry.success {
+            border-left: 3px solid #28a745;
+        }
+
+        .log-entry.error {
+            border-left: 3px solid #dc3545;
+            background: #f8d7da;
+        }
+
+        .settings-panel {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-item label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .setting-item select,
+        .setting-item input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .setting-item select:focus,
+        .setting-item input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .volume-meter {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .volume-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.1s;
+            width: 0%;
+        }
+
+        .volume-bar.high {
+            background: linear-gradient(90deg, #ffc107 0%, #fd7e14 100%);
+        }
+
+        .volume-bar.loud {
+            background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ AI 语音助手 - 在线测试</h1>
+            <p>完整的语音识别、AI 对话和语音合成测试平台</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 用户输入面板 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="icon">👤</span>
+                    <h2>用户输入</h2>
+                    <span class="status-badge status-idle" id="userStatus">空闲</span>
+                </div>
+
+                <textarea id="userInput" placeholder="在这里输入文字，或点击"开始录音"进行语音识别..."></textarea>
+
+                <div class="volume-meter">
+                    <div class="volume-bar" id="volumeBar"></div>
+                </div>
+
+                <div class="button-group" style="margin-top: 15px;">
+                    <button class="btn-success" id="btnRecord" onclick="startRecording()">
+                        <span id="recordIcon">🎤</span>
+                        <span id="recordText">开始录音</span>
+                    </button>
+                    <button class="btn-danger" id="btnStopRecord" onclick="stopRecording()" disabled>
+                        <span>⏹️</span>
+                        <span>停止录音</span>
+                    </button>
+                </div>
+
+                <div class="button-group" style="margin-top: 10px;">
+                    <button class="btn-primary" onclick="sendUserInput()">
+                        <span>📤</span>
+                        <span>发送给 AI</span>
+                    </button>
+                    <button class="btn-info" onclick="clearUserInput()">
+                        <span>🗑️</span>
+                        <span>清空</span>
+                    </button>
+                </div>
+
+                <div class="output-box empty" id="userOutput">
+                    等待输入...
+                </div>
+            </div>
+
+            <!-- AI 回复面板 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="icon">🤖</span>
+                    <h2>AI 回复</h2>
+                    <span class="status-badge status-idle" id="aiStatus">空闲</span>
+                </div>
+
+                <div class="output-box empty" id="aiOutput">
+                    AI 的回复将显示在这里...
+                </div>
+
+                <div class="button-group" style="margin-top: 15px;">
+                    <button class="btn-success" id="btnPlayAI" onclick="playAIResponse()" disabled>
+                        <span>🔊</span>
+                        <span>播放语音</span>
+                    </button>
+                    <button class="btn-danger" id="btnStopAI" onclick="stopAIResponse()" disabled>
+                        <span>⏹️</span>
+                        <span>停止播放</span>
+                    </button>
+                </div>
+
+                <div class="button-group" style="margin-top: 10px;">
+                    <button class="btn-info" onclick="clearAIOutput()">
+                        <span>🗑️</span>
+                        <span>清空</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 设置面板 -->
+            <div class="settings-panel">
+                <div class="panel-header">
+                    <span class="icon">⚙️</span>
+                    <h2>设置</h2>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label for="sttEngine">语音识别引擎</label>
+                        <select id="sttEngine">
+                            <option value="sphinx">Sphinx (离线)</option>
+                            <option value="whisper">Whisper (在线，更准确)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="aiProvider">AI 服务提供商</label>
+                        <select id="aiProvider" onchange="updateAIModel()">
+                            <option value="openai">OpenAI</option>
+                            <option value="zhipu">智谱 AI</option>
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="ollama">Ollama (本地)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="aiModel">AI 模型</label>
+                        <select id="aiModel">
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            <option value="gpt-4">GPT-4</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="apiKey">API Key</label>
+                        <input type="password" id="apiKey" placeholder="输入 API Key (Ollama 不需要)">
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="ttsEngine">语音合成引擎</label>
+                        <select id="ttsEngine">
+                            <option value="edge">Edge TTS (在线，推荐)</option>
+                            <option value="pyttsx3">pyttsx3 (离线)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="ttsVoice">TTS 语音</label>
+                        <select id="ttsVoice">
+                            <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声，温柔)</option>
+                            <option value="zh-CN-YunxiNeural">云希 (男声，专业)</option>
+                            <option value="zh-CN-YunyangNeural">云扬 (男声，活泼)</option>
+                            <option value="zh-CN-XiaoyiNeural">晓伊 (女声，可爱)</option>
+                            <option value="zh-CN-XiaohanNeural">晓涵 (女声，成熟)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="systemPrompt">系统提示词</label>
+                        <input type="text" id="systemPrompt"
+                               placeholder="你是一个友好、乐于助人的AI助手。"
+                               value="你是一个友好、乐于助人的AI助手。">
+                    </div>
+
+                    <div class="setting-item">
+                        <label>&nbsp;</label>
+                        <button class="btn-primary" onclick="saveSettings()">
+                            <span>💾</span>
+                            <span>保存设置</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日志面板 -->
+            <div class="panel" style="grid-column: 1 / -1;">
+                <div class="panel-header">
+                    <span class="icon">📋</span>
+                    <h2>操作日志</h2>
+                    <button class="btn-info" style="margin-left: auto;" onclick="clearLogs()">
+                        <span>🗑️</span>
+                        <span>清空日志</span>
+                    </button>
+                </div>
+
+                <div class="log-box" id="logBox">
+                    <div class="log-entry info">
+                        <strong>系统</strong>: 欢迎使用 AI 语音助手在线测试平台！
+                    </div>
+                    <div class="log-entry info">
+                        <strong>提示</strong>: 请先配置 API Key，然后开始测试。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioContext = null;
+        let analyser = null;
+        let volumeInterval = null;
+        let aiSpeech = null;
+        let currentAIResponse = '';
+
+        // 添加日志
+        function addLog(message, type = 'info') {
+            const logBox = document.getElementById('logBox');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<strong>${timestamp}</strong>: ${message}`;
+            logBox.appendChild(logEntry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logBox').innerHTML = '';
+            addLog('日志已清空');
+        }
+
+        // 更新状态
+        function updateStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.className = `status-badge status-${status}`;
+            element.textContent = text;
+        }
+
+        // 开始录音
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                analyser.fftSize = 256;
+
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await sendAudioForRecognition(audioBlob);
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                // 更新 UI
+                document.getElementById('btnRecord').disabled = true;
+                document.getElementById('btnStopRecord').disabled = false;
+                document.getElementById('userInput').disabled = true;
+                updateStatus('userStatus', 'active', '录音中...');
+                addLog('开始录音...', 'info');
+
+                // 显示音量
+                updateVolumeMeter();
+
+                // 启动音量监测
+                volumeInterval = setInterval(updateVolumeMeter, 100);
+
+            } catch (error) {
+                addLog(`录音失败: ${error.message}`, 'error');
+                console.error('Error starting recording:', error);
+            }
+        }
+
+        // 停止录音
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+
+                // 停止音量监测
+                if (volumeInterval) {
+                    clearInterval(volumeInterval);
+                    volumeInterval = null;
+                }
+
+                // 更新 UI
+                document.getElementById('btnRecord').disabled = false;
+                document.getElementById('btnStopRecord').disabled = true;
+                document.getElementById('userInput').disabled = false;
+                document.getElementById('volumeBar').style.width = '0%';
+                updateStatus('userStatus', 'idle', '处理中...');
+                addLog('录音已停止，正在识别...', 'info');
+            }
+        }
+
+        // 更新音量显示
+        function updateVolumeMeter() {
+            if (!analyser) return;
+
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(dataArray);
+
+            // 计算平均音量
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            const average = sum / dataArray.length;
+
+            // 更新进度条
+            const volumeBar = document.getElementById('volumeBar');
+            const percentage = Math.min(100, (average / 128) * 100);
+            volumeBar.style.width = `${percentage}%`;
+
+            // 根据音量改变颜色
+            volumeBar.className = 'volume-bar';
+            if (percentage > 70) {
+                volumeBar.classList.add('high');
+            }
+            if (percentage > 90) {
+                volumeBar.classList.add('loud');
+            }
+        }
+
+        // 发送音频进行识别
+        async function sendAudioForRecognition(audioBlob) {
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+                formData.append('engine', document.getElementById('sttEngine').value);
+
+                const response = await fetch('/api/stt', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('userInput').value = data.text;
+                    document.getElementById('userOutput').textContent = data.text;
+                    document.getElementById('userOutput').classList.remove('empty');
+                    updateStatus('userStatus', 'idle', '识别完成');
+                    addLog(`识别成功: "${data.text}"`, 'success');
+                } else {
+                    updateStatus('userStatus', 'idle', '识别失败');
+                    addLog(`识别失败: ${data.error}`, 'error');
+                }
+
+            } catch (error) {
+                updateStatus('userStatus', 'idle', '错误');
+                addLog(`识别请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 发送用户输入给 AI
+        async function sendUserInput() {
+            const userInput = document.getElementById('userInput').value.trim();
+            if (!userInput) {
+                addLog('请输入文字或先进行语音识别', 'error');
+                return;
+            }
+
+            try {
+                updateStatus('aiStatus', 'active', '思考中...');
+                addLog(`发送给 AI: "${userInput}"`, 'info');
+
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: userInput,
+                        provider: document.getElementById('aiProvider').value,
+                        model: document.getElementById('aiModel').value,
+                        api_key: document.getElementById('apiKey').value,
+                        system_prompt: document.getElementById('systemPrompt').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentAIResponse = data.response;
+                    document.getElementById('aiOutput').textContent = currentAIResponse;
+                    document.getElementById('aiOutput').classList.remove('empty');
+                    document.getElementById('btnPlayAI').disabled = false;
+                    updateStatus('aiStatus', 'idle', '回复完成');
+                    addLog(`AI 回复: "${data.response}"`, 'success');
+                } else {
+                    updateStatus('aiStatus', 'idle', '失败');
+                    addLog(`AI 回复失败: ${data.error}`, 'error');
+                }
+
+            } catch (error) {
+                updateStatus('aiStatus', 'idle', '错误');
+                addLog(`AI 请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 播放 AI 语音
+        async function playAIResponse() {
+            if (!currentAIResponse) return;
+
+            try {
+                updateStatus('aiStatus', 'active', '播放中...');
+                document.getElementById('btnPlayAI').disabled = true;
+                document.getElementById('btnStopAI').disabled = false;
+
+                const response = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: currentAIResponse,
+                        engine: document.getElementById('ttsEngine').value,
+                        voice: document.getElementById('ttsVoice').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.audio_url) {
+                    // 播放音频
+                    aiSpeech = new Audio(data.audio_url);
+                    aiSpeech.onended = () => {
+                        updateStatus('aiStatus', 'idle', '播放完成');
+                        document.getElementById('btnPlayAI').disabled = false;
+                        document.getElementById('btnStopAI').disabled = true;
+                        addLog('语音播放完成', 'success');
+                    };
+                    aiSpeech.play();
+                    addLog('正在播放 AI 语音...', 'info');
+                } else {
+                    updateStatus('aiStatus', 'idle', '失败');
+                    addLog(`语音合成失败: ${data.error}`, 'error');
+                    document.getElementById('btnPlayAI').disabled = false;
+                    document.getElementById('btnStopAI').disabled = true;
+                }
+
+            } catch (error) {
+                updateStatus('aiStatus', 'idle', '错误');
+                addLog(`语音播放失败: ${error.message}`, 'error');
+                document.getElementById('btnPlayAI').disabled = false;
+                document.getElementById('btnStopAI').disabled = true;
+            }
+        }
+
+        // 停止 AI 语音
+        function stopAIResponse() {
+            if (aiSpeech) {
+                aiSpeech.pause();
+                aiSpeech.currentTime = 0;
+                updateStatus('aiStatus', 'idle', '已停止');
+                document.getElementById('btnPlayAI').disabled = false;
+                document.getElementById('btnStopAI').disabled = true;
+                addLog('语音播放已停止', 'info');
+            }
+        }
+
+        // 清空用户输入
+        function clearUserInput() {
+            document.getElementById('userInput').value = '';
+            document.getElementById('userOutput').textContent = '等待输入...';
+            document.getElementById('userOutput').classList.add('empty');
+            addLog('用户输入已清空', 'info');
+        }
+
+        // 清空 AI 输出
+        function clearAIOutput() {
+            document.getElementById('aiOutput').textContent = 'AI 的回复将显示在这里...';
+            document.getElementById('aiOutput').classList.add('empty');
+            document.getElementById('btnPlayAI').disabled = true;
+            currentAIResponse = '';
+            addLog('AI 回复已清空', 'info');
+        }
+
+        // 更新 AI 模型选项
+        function updateAIModel() {
+            const provider = document.getElementById('aiProvider').value;
+            const modelSelect = document.getElementById('aiModel');
+            const apiKeyInput = document.getElementById('apiKey');
+
+            modelSelect.innerHTML = '';
+
+            switch (provider) {
+                case 'openai':
+                    modelSelect.innerHTML = `
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="gpt-4">GPT-4</option>
+                    `;
+                    apiKeyInput.placeholder = '输入 OpenAI API Key';
+                    break;
+                case 'zhipu':
+                    modelSelect.innerHTML = `
+                        <option value="glm-4">GLM-4</option>
+                        <option value="glm-3-turbo">GLM-3 Turbo</option>
+                    `;
+                    apiKeyInput.placeholder = '输入智谱 AI API Key';
+                    break;
+                case 'deepseek':
+                    modelSelect.innerHTML = `
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="deepseek-coder">DeepSeek Coder</option>
+                    `;
+                    apiKeyInput.placeholder = '输入 DeepSeek API Key';
+                    break;
+                case 'ollama':
+                    modelSelect.innerHTML = `
+                        <option value="llama2">Llama2</option>
+                        <option value="mistral">Mistral</option>
+                        <option value="codellama">CodeLlama</option>
+                    `;
+                    apiKeyInput.placeholder = 'Ollama 不需要 API Key';
+                    break;
+            }
+        }
+
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                stt_engine: document.getElementById('sttEngine').value,
+                ai_provider: document.getElementById('aiProvider').value,
+                ai_model: document.getElementById('aiModel').value,
+                api_key: document.getElementById('apiKey').value,
+                tts_engine: document.getElementById('ttsEngine').value,
+                tts_voice: document.getElementById('ttsVoice').value,
+                system_prompt: document.getElementById('systemPrompt').value
+            };
+
+            localStorage.setItem('voiceAssistantSettings', JSON.stringify(settings));
+            addLog('设置已保存', 'success');
+        }
+
+        // 加载设置
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('voiceAssistantSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                document.getElementById('sttEngine').value = settings.stt_engine || 'sphinx';
+                document.getElementById('aiProvider').value = settings.ai_provider || 'openai';
+                updateAIModel();
+                document.getElementById('aiModel').value = settings.ai_model || 'gpt-3.5-turbo';
+                document.getElementById('apiKey').value = settings.api_key || '';
+                document.getElementById('ttsEngine').value = settings.tts_engine || 'edge';
+                document.getElementById('ttsVoice').value = settings.tts_voice || 'zh-CN-XiaoxiaoNeural';
+                document.getElementById('systemPrompt').value = settings.system_prompt || '你是一个友好、乐于助人的AI助手。';
+                addLog('设置已加载', 'info');
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            loadSettings();
+            addLog('系统初始化完成', 'success');
+        };
+
+        // 页面卸载时清理
+        window.onbeforeunload = function() {
+            if (audioContext) {
+                audioContext.close();
+            }
+            if (mediaRecorder && isRecording) {
+                stopRecording();
+            }
+        };
+    </script>
+</body>
+</html>
