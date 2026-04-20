@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中医智能诊断平台 - 面诊与舌诊</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>中医智能诊断平台</h1>
+            <p class="subtitle">面诊 · 舌诊 · 智能分析</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="face">面诊</button>
+            <button class="tab-btn" data-tab="tongue">舌诊</button>
+        </nav>
+
+        <main>
+            <!-- 面诊模块 -->
+            <section id="face-section" class="diagnosis-section active">
+                <!-- 输入方式切换 -->
+                <div class="input-mode-switcher">
+                    <button class="mode-btn active" data-mode="upload" data-target="face">📁 上传照片</button>
+                    <button class="mode-btn" data-mode="camera" data-target="face">📹 打开摄像头</button>
+                </div>
+
+                <!-- 上传模式 -->
+                <div class="upload-area" id="face-upload-area">
+                    <div class="upload-box" id="face-upload-box">
+                        <input type="file" id="face-input" accept="image/*" hidden>
+                        <div class="upload-icon">📷</div>
+                        <p>点击或拖拽上传面部照片</p>
+                        <span class="upload-hint">支持 JPG、PNG、WebP 格式</span>
+                    </div>
+                </div>
+
+                <!-- 摄像头模式 -->
+                <div class="camera-area" id="face-camera-area" style="display: none;">
+                    <div class="camera-container">
+                        <video id="face-video" autoplay playsinline></video>
+                        <canvas id="face-canvas" style="display: none;"></canvas>
+                        <div class="camera-overlay">
+                            <div class="camera-guide face-guide">
+                                <span class="guide-text">请将面部对准框内</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="camera-controls">
+                        <button class="camera-btn switch-btn" id="face-switch-camera" title="切换摄像头">🔄</button>
+                        <button class="camera-btn capture-btn" id="face-capture-btn" title="拍照">📸</button>
+                        <button class="camera-btn close-btn" id="face-close-camera" title="关闭摄像头">✕</button>
+                    </div>
+                </div>
+
+                <!-- 预览（上传或拍照后共用） -->
+                <div class="preview-container" id="face-preview" style="display: none;">
+                    <img id="face-image" alt="面部预览">
+                    <button class="remove-btn" id="remove-face-btn">✕</button>
+                </div>
+
+                <button class="analyze-btn" id="analyze-face-btn">开始面诊分析</button>
+
+                <div class="result-container" id="face-result" style="display: none;">
+                    <h3>面诊结果</h3>
+                    <div class="result-content" id="face-result-content"></div>
+                    <div class="result-actions">
+                        <button class="export-btn" data-type="face">导出报告</button>
+                        <button class="copy-btn" data-type="face">复制结果</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 舌诊模块 -->
+            <section id="tongue-section" class="diagnosis-section">
+                <!-- 输入方式切换 -->
+                <div class="input-mode-switcher">
+                    <button class="mode-btn active" data-mode="upload" data-target="tongue">📁 上传照片</button>
+                    <button class="mode-btn" data-mode="camera" data-target="tongue">📹 打开摄像头</button>
+                </div>
+
+                <!-- 上传模式 -->
+                <div class="upload-area" id="tongue-upload-area">
+                    <div class="upload-box" id="tongue-upload-box">
+                        <input type="file" id="tongue-input" accept="image/*" hidden>
+                        <div class="upload-icon">👅</div>
+                        <p>点击或拖拽上传舌头照片</p>
+                        <span class="upload-hint">支持 JPG、PNG、WebP 格式</span>
+                    </div>
+                </div>
+
+                <!-- 摄像头模式 -->
+                <div class="camera-area" id="tongue-camera-area" style="display: none;">
+                    <div class="camera-container">
+                        <video id="tongue-video" autoplay playsinline></video>
+                        <canvas id="tongue-canvas" style="display: none;"></canvas>
+                        <div class="camera-overlay">
+                            <div class="camera-guide tongue-guide">
+                                <span class="guide-text">请将舌头对准框内</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="camera-controls">
+                        <button class="camera-btn switch-btn" id="tongue-switch-camera" title="切换摄像头">🔄</button>
+                        <button class="camera-btn capture-btn" id="tongue-capture-btn" title="拍照">📸</button>
+                        <button class="camera-btn close-btn" id="tongue-close-camera" title="关闭摄像头">✕</button>
+                    </div>
+                </div>
+
+                <!-- 预览 -->
+                <div class="preview-container" id="tongue-preview" style="display: none;">
+                    <img id="tongue-image" alt="舌部预览">
+                    <button class="remove-btn" id="remove-tongue-btn">✕</button>
+                </div>
+
+                <button class="analyze-btn" id="analyze-tongue-btn">开始舌诊分析</button>
+
+                <div class="result-container" id="tongue-result" style="display: none;">
+                    <h3>舌诊结果</h3>
+                    <div class="result-content" id="tongue-result-content"></div>
+                    <div class="result-actions">
+                        <button class="export-btn" data-type="tongue">导出报告</button>
+                        <button class="copy-btn" data-type="tongue">复制结果</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div class="loading-overlay" id="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>正在分析中，请稍候...</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
